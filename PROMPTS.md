@@ -109,18 +109,33 @@ Buat file proxy.js di root proyek (Next.js 16). Semua rute /admin kecuali /admin
 **Perbaikan:**
 - Mengatur konfigurasi matcher pada `["/admin", "/admin/:path*"]` dan menyaring kondisi `!request.nextUrl.pathname.startsWith("/admin/login")` sehingga navigasi publik, aset statis, dan rute login tetap dapat diakses tanpa hambatan.
 
-## Debugging dan fitur bonus
+## US-07 List Produk (Bonus)
 
-**Prompt:** **[SENDIRI]**
-Pemeriksaan dan penanganan format kredensial Supabase URL dan format nomor WhatsApp untuk mencegah kegagalan runtime.
+**Prompt:**
+Project ini sudah ada (Next.js + Supabase). Sebelum menulis kode, baca dulu struktur project, middleware, helper Supabase server, dan skema tabel produk. Ikuti pola kode yang sudah ada.
+
+Tugas US-07: List produk di halaman admin, datanya dari database.
+
+Yang dibuat:
+- Halaman `/admin/products` berupa Server Component yang mengambil data produk dari Supabase di sisi server.
+- Tampilkan tabel: nama, kategori, harga, stok/status (jika kolomnya ada). Siapkan kolom aksi (tombol Ubah dan Hapus) sebagai placeholder, belum perlu berfungsi.
+- State kosong ("Belum ada produk") dan state error yang ramah.
+
+Aturan:
+- Browser tidak boleh memanggil `supabase.co` langsung. Jangan pakai Supabase client di Client Component.
+- Route `/admin/products` harus tetap terlindungi middleware (tanpa login diarahkan ke `/admin/login`, tanpa redirect loop).
+- Jangan ubah RLS diam-diam. Kalau perlu policy baru, tulis sebagai file migrasi SQL terpisah dan jelaskan.
 
 **Hasil:**
-- URL Supabase pada `.env.local` yang semula terisi dengan endpoint REST (`https://<project-id>.supabase.co/rest/v1/`) disanitasi secara otomatis di `lib/supabase/server.js` dan diperbarui menjadi base URL proyek (`https://<project-id>.supabase.co`).
-- Nomor kontak WhatsApp di `lib/toko.js` yang memiliki simbol `+` disanitasi pada komponen tautan WhatsApp dengan menghapus semua karakter non-digit agar sesuai dengan standar URL skema `https://wa.me/<nomor>`.
-- Melakukan verifikasi build produksi dengan `npm run build` untuk memastikan seluruh fitur berjalan tanpa error, Server Components/Actions berfungsi semestinya, dan konvensi Next.js 16 (`proxy.js`) terdeteksi sempurna.
+- Membuat Server Component di `app/admin/products/page.jsx` yang mengambil data produk langsung dari Supabase via `buatKoneksiAdmin()` (menggunakan `@supabase/ssr` dan cookie sesi admin).
+- Menampilkan tabel produk menggunakan `TabelProduk` dengan kolom nama, kategori, harga (rupiah), dan kolom stok/status jika datanya ada.
+- Menyediakan kolom aksi dengan tombol Ubah dan Hapus sebagai placeholder.
+- Menangani state error dengan pesan yang ramah dan state kosong `"Belum ada produk"`.
+- Memastikan rute `/admin/products` terproteksi oleh `proxy.js` tanpa redirect loop.
+- Menyinkronkan rute `/admin` dan tautan navigasi `NavAdmin` ke halaman produk database.
 
-**Hasil:**
-- URL Supabase pada `.env.local` yang semula terisi dengan endpoint REST (`https://<project-id>.supabase.co/rest/v1/`) disanitasi secara otomatis di `lib/supabase/server.js` dan diperbarui menjadi base URL proyek (`https://<project-id>.supabase.co`).
-- Nomor kontak WhatsApp di `lib/toko.js` yang memiliki simbol `+` disanitasi pada komponen tautan WhatsApp dengan menghapus semua karakter non-digit agar sesuai dengan standar URL skema `https://wa.me/<nomor>`.
-- Melakukan verifikasi build produksi dengan `npm run build` untuk memastikan seluruh fitur berjalan tanpa error, Server Components/Actions berfungsi semestinya, dan konvensi Next.js 16 (`proxy.js`) terdeteksi sempurna.
+**Perbaikan:**
+- Mengembangkan `TabelProduk` agar dapat mendeteksi keberadaan kolom `stok` atau `status` secara dinamis tanpa merusak struktur tabel jika kolom tersebut belum ada di database.
+- Menyediakan penanganan fallback jika koneksi sesi admin memerlukan refresh token, agar data produk tetap dapat dimuat di sisi server tanpa interupsi.
+
 

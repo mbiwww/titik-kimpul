@@ -1,7 +1,18 @@
 import { formatRupiah } from "@/lib/format";
 import Tombol from "@/components/Tombol";
 
-export default function TabelProduk({ daftarProduk }) {
+export default function TabelProduk({ daftarProduk = [] }) {
+  if (!daftarProduk || daftarProduk.length === 0) {
+    return (
+      <div className="rounded-2xl border border-garis p-8 text-center text-teks-lembut">
+        Belum ada produk
+      </div>
+    );
+  }
+
+  const adaStok = daftarProduk.some((p) => p.stok !== undefined && p.stok !== null);
+  const adaStatus = daftarProduk.some((p) => p.status !== undefined && p.status !== null);
+
   return (
     <div className="overflow-x-auto rounded-2xl border border-garis">
       <table className="w-full min-w-[560px] text-left text-sm">
@@ -10,6 +21,8 @@ export default function TabelProduk({ daftarProduk }) {
             <th className="px-4 py-3 font-semibold">Produk</th>
             <th className="px-4 py-3 font-semibold">Kategori</th>
             <th className="px-4 py-3 font-semibold">Harga</th>
+            {adaStok && <th className="px-4 py-3 font-semibold">Stok</th>}
+            {adaStatus && <th className="px-4 py-3 font-semibold">Status</th>}
             <th className="px-4 py-3 font-semibold">
               <span className="sr-only">Aksi</span>
             </th>
@@ -26,6 +39,8 @@ export default function TabelProduk({ daftarProduk }) {
               </td>
               <td className="px-4 py-3 text-teks-lembut">{produk.kategori}</td>
               <td className="px-4 py-3">{formatRupiah(produk.harga)}</td>
+              {adaStok && <td className="px-4 py-3 text-teks-lembut">{produk.stok}</td>}
+              {adaStatus && <td className="px-4 py-3 text-teks-lembut">{produk.status}</td>}
               <td className="px-4 py-3">
                 <div className="flex justify-end gap-2">
                   {/* US-09 dan US-10 (bonus): ubah dan hapus produk */}
